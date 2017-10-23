@@ -1,66 +1,82 @@
 <?php
 
-	namespace SwooleFlierMouseBase;
+namespace SwooleFlierMouseBase;
 
-	use SwooleFlierMouseBase\interfaces\Core as CoreI;
+use SwooleFlierMouseBase\command\command;
+use SwooleFlierMouseBase\interfaces\Core as CoreI;
+use SwooleFlierMouseBase\serv\Server;
 
+class Core implements CoreI
+{
+	static protected $instance  = NULL;
+	static protected $debug     = FALSE;
+	static protected $conf_path = FALSE;
 
-	class Core implements CoreI
+	static public function getInstance ()
 	{
-		static protected $instance = NULL;
-		static protected $debug    = FALSE;
-
-		static public function getInstance ()
-		{
-			if (NULL === self::$instance) {
-				self::$instance = new static();
-			}
-
-			return self::$instance;
+		if (NULL === self::$instance) {
+			self::$instance = new static();
 		}
 
-		public function setConf ($conf_path)
-		{
-			Conf::read($conf_path);
+		return self::$instance;
+	}
 
-			return $this;
+	public function setConf ($conf_path)
+	{
+		self::$conf_path = $conf_path;
+
+		return $this;
+	}
+
+	protected function checkSystem ()
+	{
+		if (php_sapi_name() != "cli") {
+			throw new SwooleFlierMouseBaseException('START ERROR: only run in command line mode');
 		}
 
-		public function checkSystem ()
-		{
-			if (PHP_VERSION < 7) {
-				throw new SwooleFlierMouseBaseException('PHP version <= 7 ?');
-			}
-
-			if (count(get_extension_funcs('swoole')) < 1) {
-				throw new SwooleFlierMouseBaseException('swoole extension 没有 ?');
-			}
-
-			return self::$instance;
-
+		if (PHP_VERSION < 7) {
+			throw new SwooleFlierMouseBaseException('START ERROR: PHP version <= 7 ??');
 		}
 
-		public function debug ($off = TRUE)
-		{
-			self::$debug = $off;
-
-			return $this;
+		if (!get_extension_funcs('swoole')) {
+			throw new SwooleFlierMouseBaseException('START ERROR: swoole extension ??');
 		}
 
-		public function initialize ()
-		{
-
-			$this->checkSystem();
-
-			return $this;
-
-		}
-
-		public function run ()
-		{
-
-			return $this;
-		}
-
+		return $this;
 
 	}
+
+	public function debug ($off = TRUE)
+	{
+		self::$debug = $off;
+
+		return $this;
+	}
+
+	protected function initialize ()
+	{
+		$this->checkSystem();
+		Conf::read(self::$conf_path);
+		command::cmd();
+
+		return $this;
+
+	}
+
+	public function run ()
+	{
+		try {
+			$this->initialize();
+			Server::start();
+		} catch (SwooleFlierMouseBaseException $e) {
+			command::line($e->getMessage());
+		}
+	}
+
+	public function tempDirIsExist ()
+	{
+
+	}
+
+
+}

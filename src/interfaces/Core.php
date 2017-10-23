@@ -1,19 +1,19 @@
 <?php
 
-	namespace SwooleFlierMouseBase\interfaces;
+namespace SwooleFlierMouseBase\interfaces;
 
-	interface Core
-	{
-		static public function getInstance();
+interface Core
+{
+	static public function getInstance ();
 
-		public function debug ($off = TRUE);
+	public function debug ($off = TRUE);
 
-		function checkSystem();
+//		public function checkSystem ();
 
-		public function initialize();
+//		public function initialize ();
 
-		public function setConf($conf_path);
+	public function setConf ($conf_path);
 
-		public function run ();
+	public function run ();
 
-	}
+}
