@@ -8,6 +8,7 @@ composer require chenshuhao/swoole-flier-mouse-base
   
 #demo
 
+test.php
 ```php
 include './vendor/autoload.php';
 SwooleFlierMouseBase\Core::getInstance()
@@ -20,6 +21,8 @@ SwooleFlierMouseBase\Core::getInstance()
 	})
 	->run();
 ```
+
+php ./test.php start [-d] 
 
 #conf.yaml 
 
