@@ -1,12 +1,13 @@
 <?php
 
-namespace SwooleFlierMouseBase\command;
+namespace SwooleFlierMouseBase\Command;
 
 use SwooleFlierMouseBase\Conf;
 
-class command
+class Command
 {
-	static $pid_file = NULL;
+	static $pid_file      = NULL;
+	static $process_title = 'swoolefliermousebase';
 
 	static public function cmd ()
 	{
@@ -17,8 +18,8 @@ class command
 
 		if (file_exists(self::$pid_file)) {
 			$pids            = explode(',', file_get_contents(self::$pid_file));
-			$master_pid      = $pids[0];
-			$manager_pid     = $pids[1];
+			$master_pid      = @$pids[0];
+			$manager_pid     = @$pids[1];
 			$master_is_alive = $master_pid && @posix_kill($master_pid, 0);
 		}
 		else {
@@ -99,34 +100,36 @@ class command
 				exit;
 				break;
 		}
+
+		switch ($param) {
+			case '-d';
+					Conf::setDaemonize();
+				break;
+			default;
+				break;
+		}
 	}
 
-	static public function line ($message, $color = "\033")
+	static public function line ($message)
 	{
 		if (!is_array($message)) {
 			$messages[] = $message;
-		}else{
+		}
+		else {
 			$messages = $message;
 		}
 
-		echo "{$color}[31m " .
-		     str_pad(
-			     str_pad('SWOOLE-FLIER-MOUSE-BASE-MESSAGE', 10+31, '-', STR_PAD_LEFT),
-			     10+10+31, '-', STR_PAD_RIGHT) . "{$color}[0m"
-		     . PHP_EOL;
-
 		foreach ($messages as $k => $v) {
-			echo "{$color}[31m {$v} {$color}[0m"
-			     . PHP_EOL;
+			echo $v . PHP_EOL;
 
 		}
 
-		echo "{$color}[31m " .
-		     str_pad(
-			     str_pad('SWOOLE-FLIER-MOUSE-BASE-MESSAGE', 10+31, '-', STR_PAD_LEFT),
-			     10+10+31, '-', STR_PAD_RIGHT) . "{$color}[0m"
-		     . PHP_EOL;
+	}
 
+	#设置进程名称
+	public static function setProcessTitle ($name)
+	{
+		@swoole_set_process_name(self::$process_title . '_' . $name);
 	}
 
 

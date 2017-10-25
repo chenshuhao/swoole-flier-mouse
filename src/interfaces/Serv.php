@@ -3,12 +3,12 @@
 
 	interface Serv {
 //		public function __construct ();
-		public function onStart();
-		public function onShutdown();
-		public function onWorkerStart();
+		public function onStart($server);
+		public function onShutdown($server);
+		public function onWorkerStart($server, $worker_id);
 		public function onWorkerStop();
 		public function onTimer();
-		public function onConnect();
+		public function onConnect($server,  $fd,  $from_id);
 		public function onReceive($server, $fd, $reactor_id, $data);
 		public function onPacket();
 		public function onClose();
