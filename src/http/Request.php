@@ -8,7 +8,7 @@ use SwooleFlierMouseBase\RequestException;
 abstract class Request
 {
 	protected $method;
-	protected $path_info;
+	protected $request_uri;
 	protected $http_protocol;
 	protected $raw_context;
 	protected $header;
@@ -20,33 +20,6 @@ abstract class Request
 	protected $data;
 	protected $session_id;
 
-
-	public function setGlobal ($server, $fd)
-	{
-		$_GET     = $this->get ?: [];
-		$_POST    = $this->body ?: [];
-		$_FILES   = $this->files ?: [];
-		$_COOKIE  = $this->cookie ?: [];
-		$_REQUEST = @array_merge($_GET, $_POST, $_COOKIE);
-
-		$server_info = $server->connection_info($fd);
-
-		$_SERVER = [
-			'request_method' => $this->method,
-			'path_info'      => $this->path_info,
-			'remote_addr'    => $server_info['remote_ip'],
-			'remote_port'    => $server_info['remote_port'],
-			'server_port'    => $server_info['server_port'],
-		];
-
-		return $this;
-	}
-
-
-//	public function destroy ()
-//	{
-//		$_GET = $_POST = $_FILES = $_COOKIE = $_REQUEST = $_SERVER = [];
-//	}
 	public function checkPack ($recv_buffer)
 	{
 		if (!strpos($recv_buffer, "\r\n\r\n")) {
@@ -68,7 +41,7 @@ abstract class Request
 		$this->raw_context = join("\r\n\r\n", $this->data);
 		foreach ($header as $key => $val) {
 			if ($key === 0) {
-				@list($this->method, $this->path_info, $this->http_protocol) = explode(" ", $val, 3);
+				@list($this->method, $this->request_uri, $this->http_protocol) = explode(" ", $val, 3);
 			}
 			else {
 				$header_row = explode(":", $val);
@@ -83,7 +56,7 @@ abstract class Request
 			if (isset($content_type_params[1])) $this->header['content-type-params'][ trim($content_type_params[0]) ] = $content_type_params[1];
 		}
 
-		if(!$this->method || !$this->http_protocol){
+		if (!$this->method || !$this->http_protocol) {
 			throw new RequestException('http request error!');
 		}
 
@@ -147,7 +120,7 @@ abstract class Request
 	 */
 	public function deUrls ()
 	{
-		$url_params = @explode('?', $this->path_info)[1];
+		$url_params = @explode('?', $this->request_uri)[1];
 		if (strstr($url_params, '#')) {
 			$url_params = explode('#', $url_params)[0];
 		}
@@ -202,7 +175,7 @@ abstract class Request
 	public function destroy ()
 	{
 		$this->method        = NULL;
-		$this->path_info     = NULL;
+		$this->request_uri   = NULL;
 		$this->http_protocol = NULL;
 		$this->raw_context   = NULL;
 		$this->header        = NULL;

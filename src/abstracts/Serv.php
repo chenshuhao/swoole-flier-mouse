@@ -14,7 +14,7 @@ abstract class Serv implements ServI
 	public        $server_type  = NULL;
 	public        $protocol     = NULL;
 	public        $host         = NULL;
-	public        $domain       = NULL;
+	public        $server_name  = NULL;
 	public        $conf         = NULL;
 	public        $serv_conf    = NULL;
 	public        $port         = NULL;
@@ -45,15 +45,15 @@ abstract class Serv implements ServI
 	{
 		$this->conf = $conf;
 
-		$this->host      = $conf['host'];
-		$this->server_id = $server_id;
-		$this->protocol  = $conf['protocol'];
-		$this->session   = $conf['session']??FALSE;
-		$this->domain    = $conf['domain']??NULL;
-		$this->port      = $conf['port'];
-		$this->serv_conf = $conf['serv_conf']??[];
-		$this->ssl       = $conf['ssl']??(in_array($this->protocol, self::$ssl_protocols) ? TRUE : FALSE);
-		$this->mode      = $conf['mode']??SWOOLE_PROCESS;
+		$this->host        = $conf['host'];
+		$this->server_id   = $server_id;
+		$this->protocol    = $conf['protocol'];
+		$this->session     = $conf['session']??FALSE;
+		$this->server_name = isset($conf['server_name']) ? explode(' ', $conf['server_name'])[0] : $this->host;
+		$this->port        = $conf['port'];
+		$this->serv_conf   = $conf['serv_conf']??[];
+		$this->ssl         = $conf['ssl']??(in_array($this->protocol, self::$ssl_protocols) ? TRUE : FALSE);
+		$this->mode        = $conf['mode']??SWOOLE_PROCESS;
 		if ($this->ssl) {
 			if (!isset($conf['ssl_cert_pem']) || !isset($conf['ssl_cert_key'])) {
 				throw new SwooleFlierMouseBaseException('You open the SSL not set secret key and certificate');
@@ -104,7 +104,7 @@ abstract class Serv implements ServI
 		foreach (Server::$instances as $instance) {
 			$messages[] = sprintf(" \e[41;37m RUNING \e[0m   HOST:%s://%s:%s[%s] ",
 				$instance->protocol,
-				$instance->domain,
+				$instance->server_name,
 				$instance->port,
 				$instance->host
 			);

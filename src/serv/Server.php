@@ -34,7 +34,7 @@ class Server extends Serv
 	public function httpServ ($server, $fd, $reactor_id, $data)
 	{
 		try {
-			$request  = (new RequestEvent())->unpack($data)->content()->setGlobal($server, $fd);
+			$request  = (new RequestEvent())->unpack($data)->content()->setGlobal($server, $fd,$this->server_name);
 			$response = new Response($request, $this);
 
 			if ($this->server_id && isset(Core::$bind_exec[ $this->server_id ])) {
