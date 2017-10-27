@@ -2,7 +2,7 @@
   "name": "chenshuhao/swoole-flier-mouse-base",
   "description": "swoole-flier-mouse-base",
   "license": "MIT",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "require": {
     "symfony/yaml": "^3.3"
   },
