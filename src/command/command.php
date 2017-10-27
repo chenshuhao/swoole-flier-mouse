@@ -9,6 +9,24 @@ class Command
 	static $pid_file      = NULL;
 	static $process_title = 'swoolefliermousebase';
 
+	const ERROR
+		= [
+			'level' => 'ERROR',
+			'color' => '41;37'
+		];
+
+	const WARNING
+		= [
+			'level' => 'WARNING',
+			'color' => '33;37'
+		];
+
+	const NOTICE
+		= [
+			'level' => 'NOTICE',
+			'color' => '32;37'
+		];
+
 	static public function cmd ()
 	{
 		global $argv;
@@ -99,18 +117,21 @@ class Command
 				echo("system [$start_file] reload\n");
 				exit;
 				break;
+			default;
+				exit;
+				break;
 		}
 
 		switch ($param) {
 			case '-d';
-					Conf::setDaemonize();
+				Conf::setDaemonize();
 				break;
 			default;
 				break;
 		}
 	}
 
-	static public function line ($message)
+	static public function line ($message, $level = Command::NOTICE)
 	{
 		if (!is_array($message)) {
 			$messages[] = $message;
@@ -120,7 +141,7 @@ class Command
 		}
 
 		foreach ($messages as $k => $v) {
-			echo $v . PHP_EOL;
+			echo "\033[{$level['color']}m {$level['level']}: \033[0m" . $v . PHP_EOL;
 
 		}
 

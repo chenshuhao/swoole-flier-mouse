@@ -14,10 +14,11 @@ class Core implements CoreI
 	const SERVER_SOFT_MINOR_VERSION = '2';//次版本号：当你做了向下兼容的功能性新增，
 	const SERVER_SOFT_BUILD_VERSION = '20';//修订号：当你做了向下兼容的问题修正。
 
-	static protected $instance  = NULL;
-	static protected $debug     = FALSE;
-	static protected $conf_path = FALSE;
-	static public    $bind_exec = [];
+	static protected $instance         = NULL;
+	static protected $debug            = FALSE;
+	static protected $conf_path        = FALSE;
+	static public    $bind_exec        = [];
+	static public    $bind_exec_before = [];
 
 	static public function getInstance ()
 	{
@@ -80,9 +81,11 @@ class Core implements CoreI
 		}
 	}
 
-	public function bindExec ($server_index, callable $callback)
+	public function bindServerHandler ($server_index, callable $callback, $before = FALSE)
 	{
 		self::$bind_exec [ $server_index ] = $callback;
+
+		if (FALSE !== $before) self::$bind_exec_before [ $server_index ] = $before;
 
 		return $this;
 	}

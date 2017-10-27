@@ -15,7 +15,6 @@ class Conf implements ConfI
 	static protected $daemonize = FALSE;
 
 
-
 	static public function get ($key = FALSE)
 	{
 		if (NULL === self::$conf) {

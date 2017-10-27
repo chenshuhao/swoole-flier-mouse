@@ -4,6 +4,7 @@ namespace SwooleFlierMouseBase\abstracts;
 
 use SwooleFlierMouseBase\command\Command;
 use SwooleFlierMouseBase\Conf;
+use SwooleFlierMouseBase\Core;
 use SwooleFlierMouseBase\interfaces\Serv as ServI;
 use SwooleFlierMouseBase\serv\Server;
 use SwooleFlierMouseBase\SwooleFlierMouseBaseException;
@@ -130,6 +131,13 @@ abstract class Serv implements ServI
 			Command::setProcessTitle('tasker');
 		}
 		else {
+
+			#before
+			if (isset(Core::$bind_exec_before[ $this->server_id ])) {
+				$call_function         = Core::$bind_exec_before[ $this->server_id ];
+				$server->before_result = $call_function();
+			}
+
 			Command::setProcessTitle('worker');
 		}
 	}
