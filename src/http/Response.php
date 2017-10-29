@@ -125,7 +125,7 @@ class Response
 			}
 		}
 
-		$head[] = 'Date: ' . date('r', time());
+		$head[] = 'Date: ' . gmdate('D, d M Y H:i:s', time()) . ' GMT';;
 
 		if ($this->serv->session) {
 			$this->setCookie('SFMBSESSION', $this->request->getSessionId());
@@ -142,7 +142,10 @@ class Response
 
 		$responseBody
 			= <<<CONTEXT
-$this->http_protocol {$this->HTTP_HEADERS[$this->status_code]}\r\n$head\r\n\r\n$this->body
+$this->http_protocol {$this->HTTP_HEADERS[$this->status_code]}
+$head
+
+$this->body
 CONTEXT;
 
 		return $responseBody;
@@ -269,12 +272,17 @@ CONTEXT;
 		$this->serv    = NULL;
 	}
 
-	function send ($server, $fd)
+	function send ($server, $fd, $reactor_id)
 	{
-		$server->send($fd, $this->toString());
-		$connection = $this->request->getHeader('connection');
-		if (!$connection || !in_array($connection, ['keep-alive', 'keepalive', 'KEEP-ALIVE', 'KEEPALIVE'])) {
-			$server->close($fd);
+		if ($server->exist($fd)) {
+			$body = $this->toString();
+			$server->send($fd, $body);
+
+			$connection = $this->request->getHeader('connection');
+			if (!$connection || !strtolower($connection) == 'keep-alive') {
+				$server->close($fd);
+			}
+
 		}
 
 		Conf::deleteDir(Conf::$temp . DIRECTORY_SEPARATOR . $this->request->getSessionId());

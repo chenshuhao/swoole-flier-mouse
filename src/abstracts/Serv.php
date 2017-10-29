@@ -87,7 +87,7 @@ abstract class Serv implements ServI
 				$this->serv_conf['daemonize'] = TRUE;
 			}
 
-			if ($this->serv_conf) self::$serv->set($this->serv_conf);
+			if ($this->serv_conf) self::$serv->set(array_merge($this->serv_conf, Conf::get('servers_config') ?: []));
 		}
 		else {
 			$new_listen = self::$serv->addListener($this->host, $this->port, $this->sock_type);
@@ -131,6 +131,7 @@ abstract class Serv implements ServI
 			Command::setProcessTitle('tasker');
 		}
 		else {
+			echo 'onWorkerStart' . PHP_EOL;
 
 			#before
 			if (isset(Core::$bind_exec_before[ $this->server_id ])) {
@@ -158,6 +159,7 @@ abstract class Serv implements ServI
 
 	public function onReceive ($server, $fd, $reactor_id, $data)
 	{
+//		$starttime = explode(' ',microtime());
 		switch ($this->protocol) {
 			case 'http';
 				$this->httpServ($server, $fd, $reactor_id, $data);
@@ -166,6 +168,11 @@ abstract class Serv implements ServI
 				$this->httpServ($server, $fd, $reactor_id, $data);
 				break;
 		}
+
+//		$endtime = explode(' ',microtime());
+//		$thistime = $endtime[0]+$endtime[1]-($starttime[0]+$starttime[1]);
+//		$thistime = round($thistime,3);
+//		echo "本网页执行耗时：".$thistime." 秒。".time().PHP_EOL;
 	}
 
 	public function onPacket ()

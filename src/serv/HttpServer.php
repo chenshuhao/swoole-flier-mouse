@@ -19,7 +19,7 @@ class HttpServer extends Serv
 
 			if ($this->server_id && isset(Core::$bind_exec[ $this->server_id ])) {
 				$call             = Core::$bind_exec[ $this->server_id ];
-				$response_context = $call($request, $response, $server->before_result);
+				$response_context = $call($request, $response, property_exists($server, 'before_result') ? $server->before_result : NULL);
 				if ($response->bodyIsNull()) {
 					$response->setBody($response_context);
 				}
@@ -29,7 +29,7 @@ class HttpServer extends Serv
 				$response->setBody('<h1><center>This is the default page! <br />You do not configure the current address frame!</center></h1>');
 			}
 
-			$response->send($server, $fd);
+			$response->send($server, $fd,$reactor_id);
 		} catch (RequestException $e) {
 			$server->send($fd, "HTTP/1.1 400 Bad Request\r\n\r\n");
 			$server->colose($fd);
